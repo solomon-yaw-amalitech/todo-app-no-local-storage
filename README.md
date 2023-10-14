@@ -1,2 +1,2 @@
-# todo-app-no-local-storage
-Todo app
+# todo-app
+A todo list app
