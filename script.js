@@ -1,10 +1,7 @@
 "use strict";
 
-// Initialize the list of items (with local storage)
+// Initialize the list of items
 let items = [];
-
-// Check for items in local storage on page load
-loadItemsFromLocalStorage();
 
 // Dark Mode
 document
@@ -20,17 +17,22 @@ document
   });
 
 // Event listener for custom checkbox
+
 function changeCheckBox() {
   const checkboxes = document.querySelectorAll(".custom-checkbox");
   checkboxes.forEach((checkbox, index) => {
-    // Set the checkbox state based on the 'completed' property of the corresponding item
     checkbox.checked = items[index].completed;
     checkbox.addEventListener("change", (event) => {
-      // Update the 'completed' property of the corresponding item
       items[index].completed = event.target.checked;
+
+      if (!event.target.checked) {
+        // Remove the item from the completed state
+        items[index].completed = false;
+      }
+
+      // Update the item's visual representation
       updateItemUI(index);
       itemsLeft();
-      saveItemsToLocalStorage();
     });
   });
 }
@@ -47,32 +49,18 @@ function updateItemUI(index) {
   listTitle.classList.toggle("completed_with_color", items[index].completed);
 }
 
-function loadItemsFromLocalStorage() {
-  const savedItems = JSON.parse(localStorage.getItem("todoItems"));
-  if (savedItems) {
-    items = savedItems;
-    render();
-  }
-}
-
-function saveItemsToLocalStorage() {
-  localStorage.setItem("todoItems", JSON.stringify(items));
-}
-
 function addItem(description) {
   items.push({
     description,
     completed: false,
   });
   render();
-  saveItemsToLocalStorage();
 }
 
 function deleteListItem(index) {
   items.splice(index, 1);
   render();
   itemsLeft();
-  saveItemsToLocalStorage();
 }
 
 function itemsLeft() {
@@ -183,7 +171,6 @@ function clearCompletedItems() {
   items = items.filter((item) => !item.completed);
   render();
   itemsLeft();
-  saveItemsToLocalStorage();
 }
 
 // Event listener for the "Clear Completed" button
@@ -204,7 +191,6 @@ document
 // Call the render function on page load
 window.onload = function () {
   render();
-  changeCheckBox();
 };
 
 function render() {
@@ -221,54 +207,24 @@ function render() {
                   item.completed
                     ? "./images/check.png"
                     : "./images/circle-white.png"
-                }" alt
-                                <img src="${
-                                  item.completed
-                                    ? "./images/check.png"
-                                    : "./images/circle-white.png"
-                                }" alt="Checkbox" class="checkbox-image">
+                }" alt="Checkbox" class="checkbox-image">
             </label>
             <p class="list_title">${item.description}</p>
             <svg onclick="deleteListItem(${i})" class="delete_list" width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <g id="Combined Shape 2">
-                    <path id="Combined Shape" fill-rule="evenodd" clip-rule="evenodd" d="M17.6777 0.707107L16.9706 0L8.83883 8.13173L0.707107 0L0 0.707107L8.13173 8.83883L0 16.9706L0.707106 17.6777L8.83883 9.54594L16.9706 17.6777L17.6777 16.9706L9.54594 8.83883L17.6777 0.707107Z" fill="#494C6B"/>
-                </g>
-            </svg>
-        </div>`;
+                    <path id="Combined Shape" fill-rule="evenodd" clip-rule="evenodd" d="M17.6777 0.707107L16.9706 0L8.83883 8.13173L0.707107 0L0 0.707107L8.13173 8.83883L0 16.9706
+                    L0.707107 17.6777L8.83883 9.54594L16.9706 17.6777L17.6777 16.9706L9.54594 8.83883L17.6777 0.707107Z" fill="#494C6B"/>
+                    </g>
+                </svg>
+            </div>`;
     todoList.insertAdjacentHTML("beforeend", newHtml);
   }
   draggableList();
-  loadCheckboxState("active");
   itemsLeft();
+  changeCheckBox();
 }
 
-function loadCheckboxState(filterType) {
-  const checkboxes = document.querySelectorAll(".custom-checkbox");
-  checkboxes.forEach((checkbox, index) => {
-    const checkboxImage = checkbox.parentNode.querySelector(".checkbox-image");
-    if (filterType === "active" && items[index].completed) {
-      checkbox.checked = false;
-      checkboxImage.src = "./images/circle-white.png";
-    } else {
-      checkbox.checked = items[index].completed;
-      checkboxImage.src = items[index].completed
-        ? "./images/check.png"
-        : "./images/circle-white.png";
-    }
-  });
-}
-
-// Event listener for the "Active" filter
-document.querySelector(".status .active").addEventListener("click", () => {
-  updateFilteredList("active");
-});
-
-// Event listener for the "All" filter
-document.querySelector(".status .all").addEventListener("click", () => {
-  updateFilteredList("all");
-});
-
-// Event listener for the "Completed" filter
-document.querySelector(".status .completed").addEventListener("click", () => {
-  updateFilteredList("completed");
-});
+// Call the render function on page load
+window.onload = function () {
+  render();
+};
