@@ -183,6 +183,7 @@ document
     event.preventDefault();
     const listItem = event.target.value.trim();
     if (listItem.length > 0 && event.keyCode === 13) {
+      changeCheckBox();
       addItem(listItem);
       event.target.value = "";
     }
